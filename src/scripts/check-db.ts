@@ -32,3 +32,4 @@ check().catch((error) => {
   process.exitCode = 1;
 });
 
+// health check script
