@@ -31,3 +31,4 @@ check().catch((error) => {
   console.error("Database check failed:", error);
   process.exitCode = 1;
 });
+
