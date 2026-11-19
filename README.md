@@ -112,6 +112,7 @@ The client should point its API proxy at `http://localhost:5000`.
 | `npm test` | Run all 64 tests |
 | `npm run test:watch` | Run tests in watch mode |
 | `npm run seed` | Reset demo data and insert seeded records |
+| `npm run db:check` | Verify database connectivity and count documents |
 
 ## API routes
 
