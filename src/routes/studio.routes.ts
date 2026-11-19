@@ -186,50 +186,49 @@ router.post(
   }),
 );
 
-router.patch(
-  "/:id",
-  requireAuth,
-  asyncHandler(async (req, res) => {
-    const user = getAuthUser(req);
-    const studioId = parseObjectId(req.params.id ?? "", "studio");
-    const input = updateStudioSchema.parse(req.body);
-    const studios = await getStudios();
+const handleUpdateStudio = asyncHandler(async (req, res) => {
+  const user = getAuthUser(req);
+  const studioId = parseObjectId(req.params.id ?? "", "studio");
+  const input = updateStudioSchema.parse(req.body);
+  const studios = await getStudios();
 
-    const studio = await studios.findOne({ _id: studioId });
-    if (!studio) {
-      throw new AppError(404, "Studio not found.", "STUDIO_NOT_FOUND");
-    }
+  const studio = await studios.findOne({ _id: studioId });
+  if (!studio) {
+    throw new AppError(404, "Studio not found.", "STUDIO_NOT_FOUND");
+  }
 
-    if (studio.ownerEmail !== user.email) {
-      throw new AppError(
-        403,
-        "You can only update your own studio listings.",
-        "STUDIO_OWNER_REQUIRED",
-      );
-    }
-
-    const updated = await studios.findOneAndUpdate(
-      { _id: studioId },
-      {
-        $set: {
-          ...input,
-          updatedAt: new Date(),
-        },
-      },
-      { returnDocument: "after" },
+  if (studio.ownerEmail !== user.email) {
+    throw new AppError(
+      403,
+      "You can only update your own studio listings.",
+      "STUDIO_OWNER_REQUIRED",
     );
+  }
 
-    if (!updated) {
-      throw new AppError(404, "Studio not found.", "STUDIO_NOT_FOUND");
-    }
+  const updated = await studios.findOneAndUpdate(
+    { _id: studioId },
+    {
+      $set: {
+        ...input,
+        updatedAt: new Date(),
+      },
+    },
+    { returnDocument: "after" },
+  );
 
-    res.status(200).json({
-      success: true,
-      message: "Studio listing updated successfully.",
-      data: { studio: toPublicStudio(updated) },
-    });
-  }),
-);
+  if (!updated) {
+    throw new AppError(404, "Studio not found.", "STUDIO_NOT_FOUND");
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Studio listing updated successfully.",
+    data: { studio: toPublicStudio(updated) },
+  });
+});
+
+router.patch("/:id", requireAuth, handleUpdateStudio);
+router.put("/:id", requireAuth, handleUpdateStudio);
 
 router.delete(
   "/:id",
