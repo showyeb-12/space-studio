@@ -36,3 +36,5 @@ startServer().catch((error) => {
   console.error("Failed to start StudioSpace API:", error);
   process.exit(1);
 });
+
+module.exports = createApp;
