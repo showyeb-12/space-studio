@@ -141,5 +141,19 @@ export const studioQuerySchema = z
 
 export type StudioQueryInput = z.infer<typeof studioQuerySchema>;
 
+export const createReviewSchema = z.object({
+  rating: z.coerce
+    .number()
+    .int()
+    .min(1, "Rating must be at least 1 star.")
+    .max(5, "Rating cannot exceed 5 stars."),
+  comment: z
+    .string()
+    .trim()
+    .min(5, "Review comment must be at least 5 characters.")
+    .max(500, "Review comment cannot exceed 500 characters."),
+});
+
+export type CreateReviewInput = z.infer<typeof createReviewSchema>;
 export type CreateStudioInput = z.infer<typeof createStudioSchema>;
 export type UpdateStudioInput = z.infer<typeof updateStudioSchema>;

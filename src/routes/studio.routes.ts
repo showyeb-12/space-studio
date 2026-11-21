@@ -3,6 +3,7 @@ import { ObjectId, type Filter, type Sort } from "mongodb";
 import { getStudios } from "../db/mongo";
 import { requireAuth } from "../middleware/requireAuth";
 import {
+  createReviewSchema,
   createStudioSchema,
   studioQuerySchema,
   updateStudioSchema,
@@ -257,6 +258,55 @@ router.delete(
       success: true,
       message: "Studio listing deleted successfully.",
       data: { id: studioId.toHexString() },
+    });
+  }),
+);
+
+router.post(
+  "/:id/reviews",
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const user = getAuthUser(req);
+    const studioId = parseObjectId(String(req.params.id ?? ""), "studio");
+    const input = createReviewSchema.parse(req.body);
+    const studios = await getStudios();
+
+    const studio = await studios.findOne({ _id: studioId });
+    if (!studio) {
+      throw new AppError(404, "Studio not found.", "STUDIO_NOT_FOUND");
+    }
+
+    const newReview = {
+      id: new ObjectId().toHexString(),
+      name: user.name,
+      photoURL: user.photoURL,
+      rating: input.rating,
+      comment: input.comment,
+      createdAt: new Date(),
+    };
+
+    const updatedReviews = [newReview, ...(studio.reviews ?? [])];
+    const newRating =
+      updatedReviews.reduce((sum, r) => sum + r.rating, 0) /
+      updatedReviews.length;
+
+    const updated = await studios.findOneAndUpdate(
+      { _id: studioId },
+      {
+        $push: { reviews: { $each: [newReview], $position: 0 } },
+        $set: {
+          rating: Number(newRating.toFixed(1)),
+          reviewCount: updatedReviews.length,
+          updatedAt: new Date(),
+        },
+      },
+      { returnDocument: "after" },
+    );
+
+    res.status(201).json({
+      success: true,
+      message: "Review submitted successfully.",
+      data: { studio: toPublicStudio(updated!) },
     });
   }),
 );
