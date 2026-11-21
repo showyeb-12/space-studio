@@ -82,7 +82,7 @@ router.post(
   asyncHandler(async (req, res) => {
     const user = getAuthUser(req);
     const studioId = parseObjectId(
-      req.params.studioId ?? "",
+      String(req.params.studioId ?? ""),
       "studio",
     );
     const studios = await getStudios();

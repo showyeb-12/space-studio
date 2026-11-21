@@ -129,7 +129,7 @@ router.get(
 router.get(
   "/:id",
   asyncHandler(async (req, res) => {
-    const studioId = parseObjectId(req.params.id ?? "", "studio");
+    const studioId = parseObjectId(String(req.params.id ?? ""), "studio");
     const studios = await getStudios();
     const studio = await studios.findOne({ _id: studioId });
 
@@ -188,7 +188,7 @@ router.post(
 
 const handleUpdateStudio = asyncHandler(async (req, res) => {
   const user = getAuthUser(req);
-  const studioId = parseObjectId(req.params.id ?? "", "studio");
+  const studioId = parseObjectId(String(req.params.id ?? ""), "studio");
   const input = updateStudioSchema.parse(req.body);
   const studios = await getStudios();
 
@@ -235,7 +235,7 @@ router.delete(
   requireAuth,
   asyncHandler(async (req, res) => {
     const user = getAuthUser(req);
-    const studioId = parseObjectId(req.params.id ?? "", "studio");
+    const studioId = parseObjectId(String(req.params.id ?? ""), "studio");
     const studios = await getStudios();
 
     const studio = await studios.findOne({ _id: studioId });

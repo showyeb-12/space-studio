@@ -120,7 +120,7 @@ router.patch(
   requireAuth,
   asyncHandler(async (req, res) => {
     const user = getAuthUser(req);
-    const bookingId = parseObjectId(req.params.id ?? "", "booking");
+    const bookingId = parseObjectId(String(req.params.id ?? ""), "booking");
     const bookings = await getBookings();
 
     const booking = await bookings.findOne({ _id: bookingId });
